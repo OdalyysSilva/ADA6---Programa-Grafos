@@ -12,14 +12,12 @@ estados = {
     "Michoacán": {"Jalisco": 250, "Querétaro": 400}
 }
 
-# Crear el grafo y agregar las conexiones con los costos
-grafo = nx.Graph()
+grafo = nx.Graph() # Crear el grafo y agregar las conexiones con los costos
 for estado, conexiones in estados.items():
     for vecino, costo in conexiones.items():
         grafo.add_edge(estado, vecino, weight=costo)
 
-# Para calcular el costo total de un recorrido dado
-def costo(ruta):
+def costo(ruta): # Para calcular el costo total de un recorrido dado
     costo_total = 0
     for i in range(len(ruta) - 1):
         costo_total += grafo[ruta[i]][ruta[i + 1]]['weight']
@@ -34,8 +32,7 @@ def regreso_sinrep(estado_actual, visitados, ruta, costo_actual):
     for vecino in grafo[estado_actual]:
         if vecino not in visitados:
             nueva_ruta, nuevo_costo = regreso_sinrep(
-                vecino, visitados | {vecino}, ruta + [estado_actual], costo_actual + grafo[estado_actual][vecino]['weight']
-            )
+                vecino, visitados | {vecino}, ruta + [estado_actual], costo_actual + grafo[estado_actual][vecino]['weight'])
             if nueva_ruta and nuevo_costo < mejor_costo:
                 mejor_ruta, mejor_costo = nueva_ruta, nuevo_costo
     return mejor_ruta, mejor_costo
@@ -49,27 +46,11 @@ def regreso_conrep(estado_actual, visitados, ruta, costo_actual):
     for vecino in grafo[estado_actual]:
         if len(ruta) < len(estados) or (vecino == ruta[0] and len(visitados) > len(estados)):
             nueva_ruta, nuevo_costo = regreso_conrep(
-                vecino, visitados + [vecino], ruta + [estado_actual], costo_actual + grafo[estado_actual][vecino]['weight']
-            )
+                vecino, visitados + [vecino], ruta + [estado_actual], costo_actual + grafo[estado_actual][vecino]['weight'])
             if nueva_ruta and nuevo_costo < mejor_costo:
                 mejor_ruta, mejor_costo = nueva_ruta, nuevo_costo
     return mejor_ruta, mejor_costo
 
-def regreso_conrepeticion():
-    estados_lista = list(estados.keys())
-    total_costs = []
-    print("Recorridos con repetición de al menos un estado:")
-
-    for recorrido in grafo(estados_lista, repeat=8):
-        if len(set(recorrido)) >= 7:  # Asegura que al menos 7 estados diferentes estén presentes
-            costo = costo(recorrido)
-            if costo is not None:  # Solo imprimir recorridos válidos
-                total_costs.append(costo)
-                print(f"Recorrido: {' -> '.join(recorrido)} | Costo Total: {costo}")
-    print(f"\nCosto total de recorridos con repetición: {sum(total_costs) if total_costs else 'No hay recorridos válidos'}")
-
-
-# Dibuja el grafo con etiquetas de costos
 def dibujar_grafo():
     pos = nx.spring_layout(grafo)
     nx.draw(grafo, pos, with_labels=True, node_color="lightblue", node_size=2000, font_size=10)
@@ -78,7 +59,6 @@ def dibujar_grafo():
     plt.title("Grafo de Estados con Costos de Traslado")
     plt.show()
 
-# Función principal para manejar el menú
 def menu():
     estado_inicio = "Aguascalientes"
     while True:
@@ -104,5 +84,4 @@ def menu():
             break
         else:
             print("Opción no válida. Intente de nuevo.")
-
 menu()
